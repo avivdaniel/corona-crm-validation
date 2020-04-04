@@ -37,3 +37,7 @@ form {
 .btn.btn-delete {
     color: red;
 }
+
+.checking{
+    position: relative;
+}
