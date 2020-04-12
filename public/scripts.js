@@ -7,7 +7,8 @@ const over18Feedback = document.getElementById('over18-feedback')
 const email = document.getElementById('email');
 const table = document.getElementById('table');
 const thead = document.getElementById('thead');
-const tbody = document.getElementById('customersTableTb')
+const tbody = document.getElementById('customersTableTb');
+const editForm = document.getElementById('editForm');
 
 newCustomerForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -33,6 +34,13 @@ newCustomerForm.addEventListener('submit', (e) => {
     getCustomers();
 });
 
+editForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!validateFullName()) {
+        console.log('validate full name faild');
+        return;
+    }
+});
 
 function validateAge(form) {
     if (!form.over18.checked) {
@@ -149,11 +157,11 @@ function getCustomers() {
         .then(refreshCustomers())
         .then(data => {
             data.forEach(customer => {
-                actionsInnerHTML = `
-            <button class="btn btn-sm">
+                const actionsInnerHTML = `
+            <button class="btn btn-sm" id="btn-edit">
             <i class="far fa-edit"></i>
             </button>
-            <button class="btn btn-sm btn-delete">
+            <button class="btn btn-sm btn-delete" id="btn-delete">
             <i class="far fa-trash-alt"></i>
             </button>`;
                 tbody.innerHTML = tbody.innerHTML + `
@@ -164,9 +172,17 @@ function getCustomers() {
             <td>${customer.birthDate}</td>
             <td>${customer.created}</td>
             <td>${actionsInnerHTML}</td>
-            </tr>`
+            </tr>`;
+
+                tbody.querySelector('#btn-edit').addEventListener('click', () => {
+                    openModal();
+                    const fullName_edit = document.getElementById('fullName_edit').value = customer.fullName;
+                    const email_edit = document.getElementById('email_edit').value = customer.email;
+                    const birthdate_edit = document.getElementById('birthdate_edit').value = customer.birthDate;
+                    const notes = document.getElementById('notes_edit').value = customer.notes;
+                });
             });
-        })
+        });
 }
 
 function refreshCustomers() {
