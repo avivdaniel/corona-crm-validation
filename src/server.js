@@ -54,8 +54,6 @@ app.delete('/customer/:id', (req, res) => {
 
 //edit specific customer
 app.post('/customer/:id', (req, res) => {
-	console.log('hey spesific customer');
-	console.log(customers);
 	const requestedCustomer = customers.find(customer => {
 		return customer.id === parseInt(req.params.id);
 	});
@@ -75,6 +73,7 @@ app.post('/customer/:id', (req, res) => {
 		created: req.body.created
 	};
 	res.json(customers[index]);
+	console.log(customers);
 });
 
 app.listen(port, () => {

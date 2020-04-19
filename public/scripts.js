@@ -57,6 +57,7 @@ newCustomerForm.addEventListener('submit', (e) => {
 
 // edit customer form validation
 
+
 function createCustomer(customer) {
     return fetch(API_URL + '/customer', {
         method: 'PUT',
@@ -77,10 +78,7 @@ function editCustomer(editedCustomer) {
             'Content-Type': 'application/json'
         }
     });
-    getCustomers();
 }
-
-
 
 function getCustomers() {
     return fetch(API_URL + '/customer')
@@ -89,62 +87,56 @@ function getCustomers() {
         .then(data => {
             data.forEach(customer => {
                 const actionsInnerHTML = `
-                <button class="btn btn-sm btn-edit">
-                <i class="far fa-edit"></i>
-                </button>
-                <button class="btn btn-sm btn-delete">
-                <i class="far fa-trash-alt"></i>
-                </button>`;
+            <button class="btn btn-sm btn-edit">
+            <i class="far fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-delete">
+            <i class="far fa-trash-alt"></i>
+            </button>`;
                 tbody.innerHTML = tbody.innerHTML + `
-                <tr>
-                <th>${customer.id}</th>
-                <td>${customer.fullName}</td>
-                <td>${customer.email}</td>
-                <td>${customer.birthDate}</td>
-                <td>${customer.created}</td>
-                <td>
-                <button class="btn btn-sm btn-edit">
-                <i class="far fa-edit"></i>
-                </button>
-                <button class="btn btn-sm btn-delete">
-                <i class="far fa-trash-alt"></i>
-                </button>
-                </td>
-                </tr>`;
+            <tr>
+            <th>${customer.id}</th>
+            <td>${customer.fullName}</td>
+            <td>${customer.email}</td>
+            <td>${customer.birthDate}</td>
+            <td>${customer.created}</td>
+            <td>${actionsInnerHTML}</td>
+            </tr>`;
 
+                tbody.querySelector('.btn-edit').addEventListener('click', () => {
+                    openModal();
+                    const fullName_edit = document.getElementById('fullName_edit').value = customer.fullName;
+                    const email_edit = document.getElementById('email_edit').value = customer.email;
+                    const birthdate_edit = document.getElementById('birthdate_edit').value = customer.birthDate;
+                    const notes = document.getElementById('notes_edit').value = customer.notes;
+                });
 
-                // tbody.querySelector('.btn-edit').addEventListener('click', () => {
-                //     console.log(customer);
-                //     openModal();
-                //     const fullName_edit = document.getElementById('fullName_edit').value = customer.fullName;
-                //     const email_edit = document.getElementById('email_edit').value = customer.email;
-                //     const birthdate_edit = document.getElementById('birthdate_edit').value = customer.birthDate;
-                //     const notes = document.getElementById('notes_edit').value = customer.notes;
-                // });
+                editForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    if (!validateFullName(fullName_edit)) {
+                        console.log('validate full name **edit** faild');
+                        return;
+                    }
+                    if (!isValidEmail(email_edit)) {
+                        console.log('validate email **edit** wrong')
+                        return;
+                    }
+                    editCustomer({
+                        id: customer.id,
+                        fullName: editForm.fullName_edit.value,
+                        email: editForm.email.value,
+                        birthDate: editForm.birthDate.value,
+                        notes: editForm.notes.value,
+                        created: customer.created
+                    });
+                    closeModal();
+                    getCustomers();
+                });
             });
-            console.log(data);
-            // editForm.addEventListener('submit', (e) => {
-            //     e.preventDefault();
-            //     if (!validateFullName(fullName_edit)) {
-            //         console.log('validate full name **edit** faild');
-            //         return;
-            //     }
-            //     if (!isValidEmail(email_edit)) {
-            //         console.log('validate email **edit** wrong')
-            //         return;
-            //     }
-            //     editCustomer({
-            //         id: customer.id,
-            //         fullName: editForm.fullName_edit.value,
-            //         email: editForm.email.value,
-            //         birthDate: editForm.birthDate.value,
-            //         notes: editForm.notes.value,
-            //         created: customer.created
-            //     });
-            //     closeModal();
-            // });
         });
 }
+
+
 
 function refreshCustomers() {
     tbody.innerHTML = '';
