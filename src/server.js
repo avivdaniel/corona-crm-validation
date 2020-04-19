@@ -54,6 +54,8 @@ app.delete('/customer/:id', (req, res) => {
 
 //edit specific customer
 app.post('/customer/:id', (req, res) => {
+	console.log('hey spesific customer');
+	console.log(customers);
 	const requestedCustomer = customers.find(customer => {
 		return customer.id === parseInt(req.params.id);
 	});
@@ -65,10 +67,12 @@ app.post('/customer/:id', (req, res) => {
 
 	const index = customers.indexOf(requestedCustomer);
 	customers[index] = {
+		id: req.body.id,
 		fullName: req.body.fullName,
 		email: req.body.email,
 		birthDate: req.body.birthDate,
-		notes: req.body.notes
+		notes: req.body.notes,
+		created: req.body.created
 	};
 	res.json(customers[index]);
 });

@@ -9,18 +9,39 @@ const table = document.getElementById('table');
 const thead = document.getElementById('thead');
 const tbody = document.getElementById('customersTableTb');
 const editForm = document.getElementById('editForm');
+const fullName_edit = document.getElementById('fullName_edit');
+const email_edit = document.getElementById('email_edit');
 
+
+fullName.addEventListener('blur', () => {
+    validateFullName(fullName);
+});
+
+email.addEventListener('blur', () => {
+    isValidEmail(email);
+});
+
+fullName_edit.addEventListener('blur', () => {
+    validateFullName(fullName_edit);
+});
+
+email_edit.addEventListener('blur', () => {
+    isValidEmail(email_edit);
+});
+
+
+// create customer form client validation
 newCustomerForm.addEventListener('submit', (e) => {
     e.preventDefault();
     if (!validateAge(newCustomerForm)) {
         console.log('validateAge faild')
         return;
     }
-    if (!validateFullName()) {
+    if (!validateFullName(fullName)) {
         console.log('validate full name faild');
         return;
     }
-    if (!isValidEmail()) {
+    if (!isValidEmail(email)) {
         console.log('validate email wrong')
         return;
     }
@@ -28,118 +49,13 @@ newCustomerForm.addEventListener('submit', (e) => {
         fullName: newCustomerForm.fullName.value,
         email: newCustomerForm.email.value,
         birthDate: newCustomerForm.birthDate.value,
-        notes: newCustomerForm.notes.value,
+        notes: newCustomerForm.notes.value
     });
     console.log('user sended');
     getCustomers();
 });
 
-editForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (!validateFullName()) {
-        console.log('validate full name faild');
-        return;
-    }
-});
-
-function validateAge(form) {
-    if (!form.over18.checked) {
-        over18Field.classList.add('is-invalid');
-        over18Feedback.innerHTML = 'you nust be over 18!';
-        over18Feedback.classList.add('invalid-feedback');
-        //I was trying to use the function setValid\invalid but its a problem since the feedback isnot a nextelementsibling of the checkbox and i didnt want to change the logic
-        return false;
-    }
-    over18Field.classList.add('is-valid');
-    over18Feedback.innerHTML = '';
-    return true;
-}
-
-//validation functions 
-function validateFullName() {
-    if (checkIfEmpty(fullName)) {
-        return;
-    }
-    if (CheckIfLessThan2Words(fullName)) {
-        return;
-    }
-    if (!checkIfOnlyLetters(fullName)) {
-        return;
-    }
-    return true;
-}
-
-
-function isValidEmail() {
-    if (/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(String(email.value).toLowerCase())) {
-        setValid(email)
-        return true;
-    }
-    setInvalid(email, 'You must contain a valid email adress')
-    return false;
-}
-
-//helpers functions
-function checkIfEmpty(field) {
-    if (isEmpty(field.value.trim())) {
-        setInvalid(field, `${field.name} must not be empty`);
-        return true; //because its empty
-    } else {
-        setValid(field);
-        return false;
-    }
-}
-
-function isEmpty(value) {
-    if (value === '') {
-        return true;
-    }
-    return false;
-}
-
-function checkIfOnlyLetters(field) {
-    if (/^[a-zA-Z ]*$/.test(field.value)) {
-        setValid(field);
-        return true;
-    } else {
-        setInvalid(field, `${field.name} must contain only letters`);
-        return false;
-    }
-};
-
-function CheckIfLessThan2Words(field) {
-    if (isLessThan2Words(field.value)) {
-        setInvalid(field, 'You must contain at least 2 words')
-        return true;
-    } else {
-        setValid(field);
-        return false;
-    }
-}
-
-function isLessThan2Words(value) {
-    value = value.split(' ');
-    if (value.length < 2) {
-        return true;
-    }
-    return false;
-}
-
-
-function setInvalid(field, message) {
-    field.classList.add('is-invalid');
-    field.nextElementSibling.innerHTML = message;
-    field.nextElementSibling.classList.add('invalid-feedback');
-    return;
-}
-
-function setValid(field) {
-    field.classList.remove('is-invalid');
-    field.classList.add('is-valid');
-    field.nextElementSibling.innerHTML = '';
-    return;
-}
-
+// edit customer form validation
 
 function createCustomer(customer) {
     return fetch(API_URL + '/customer', {
@@ -151,6 +67,21 @@ function createCustomer(customer) {
     });
 }
 
+function editCustomer(editedCustomer) {
+    console.log('hey edit fetch!')
+    console.log(editedCustomer);
+    return fetch(API_URL + `/customer/${editedCustomer.id}`, {
+        method: 'POST',
+        body: JSON.stringify(editedCustomer),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    getCustomers();
+}
+
+
+
 function getCustomers() {
     return fetch(API_URL + '/customer')
         .then(res => res.json())
@@ -158,30 +89,60 @@ function getCustomers() {
         .then(data => {
             data.forEach(customer => {
                 const actionsInnerHTML = `
-            <button class="btn btn-sm" id="btn-edit">
-            <i class="far fa-edit"></i>
-            </button>
-            <button class="btn btn-sm btn-delete" id="btn-delete">
-            <i class="far fa-trash-alt"></i>
-            </button>`;
+                <button class="btn btn-sm btn-edit">
+                <i class="far fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-delete">
+                <i class="far fa-trash-alt"></i>
+                </button>`;
                 tbody.innerHTML = tbody.innerHTML + `
-            <tr>
-            <th>${customer.id}</th>
-            <td>${customer.fullName}</td>
-            <td>${customer.email}</td>
-            <td>${customer.birthDate}</td>
-            <td>${customer.created}</td>
-            <td>${actionsInnerHTML}</td>
-            </tr>`;
+                <tr>
+                <th>${customer.id}</th>
+                <td>${customer.fullName}</td>
+                <td>${customer.email}</td>
+                <td>${customer.birthDate}</td>
+                <td>${customer.created}</td>
+                <td>
+                <button class="btn btn-sm btn-edit">
+                <i class="far fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-delete">
+                <i class="far fa-trash-alt"></i>
+                </button>
+                </td>
+                </tr>`;
 
-                tbody.querySelector('#btn-edit').addEventListener('click', () => {
-                    openModal();
-                    const fullName_edit = document.getElementById('fullName_edit').value = customer.fullName;
-                    const email_edit = document.getElementById('email_edit').value = customer.email;
-                    const birthdate_edit = document.getElementById('birthdate_edit').value = customer.birthDate;
-                    const notes = document.getElementById('notes_edit').value = customer.notes;
-                });
+
+                // tbody.querySelector('.btn-edit').addEventListener('click', () => {
+                //     console.log(customer);
+                //     openModal();
+                //     const fullName_edit = document.getElementById('fullName_edit').value = customer.fullName;
+                //     const email_edit = document.getElementById('email_edit').value = customer.email;
+                //     const birthdate_edit = document.getElementById('birthdate_edit').value = customer.birthDate;
+                //     const notes = document.getElementById('notes_edit').value = customer.notes;
+                // });
             });
+            console.log(data);
+            // editForm.addEventListener('submit', (e) => {
+            //     e.preventDefault();
+            //     if (!validateFullName(fullName_edit)) {
+            //         console.log('validate full name **edit** faild');
+            //         return;
+            //     }
+            //     if (!isValidEmail(email_edit)) {
+            //         console.log('validate email **edit** wrong')
+            //         return;
+            //     }
+            //     editCustomer({
+            //         id: customer.id,
+            //         fullName: editForm.fullName_edit.value,
+            //         email: editForm.email.value,
+            //         birthDate: editForm.birthDate.value,
+            //         notes: editForm.notes.value,
+            //         created: customer.created
+            //     });
+            //     closeModal();
+            // });
         });
 }
 
